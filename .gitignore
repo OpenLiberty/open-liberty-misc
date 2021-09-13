@@ -1,4 +1,20 @@
-# Compiled class file
+# Ignore gradle files and folders at the root
+/.gradle/
+/gradle/
+/gradlew
+/gradlew.bat
+
+# Ignore bin folders at the root of each project
+/*/bin/
+/*/bin_test/
+
+# Ignore build folders at the root of each project
+/*/build/
+
+# Ignore generated folders at the root of each project
+/*/generated/
+
+# Compiled class files
 *.class
 
 # Log file
