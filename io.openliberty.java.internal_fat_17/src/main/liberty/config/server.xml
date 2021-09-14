@@ -1,0 +1,6 @@
+<server>
+    <featureManager>
+		<feature>servlet-4.0</feature>
+        <feature>jaxrs-2.1</feature>
+    </featureManager>
+</server>
