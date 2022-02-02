@@ -71,7 +71,7 @@ dependencies {
     compileOnly group: 'javax.enterprise', name: 'cdi-api', version: '2.0'
 //    compileOnly group: 'javax.annotation', name: 'javax.annotation-api', version: '1.3.2'
 //    compileOnly group: 'javax.transaction', name: 'javax.transaction-api', version: '1.3'
-    libertyRuntime group: 'io.openliberty', name: 'openliberty-runtime', version: '21.0.0.9'
+    libertyRuntime group: 'io.openliberty', name: 'openliberty-runtime', version: '22.0.0.2'
 //    serverLibs group: 'org.apache.derby', name: 'derby', version: '10.14.2.0' // '10.15.1.3'
 }
 
