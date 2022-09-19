@@ -26,7 +26,12 @@ import javax.ws.rs.Path;
 public class TestService {
 
     private StringWriter sw = new StringWriter();
+    private RandomGeneratorFactory<RandomGenerator> rgf = RandomGeneratorFactory.of("L64X128MixRandom");
+    private RandomGenerator rng = rgf.create();
 
+    // Use records to easily create objects for containing immutable data -> or more information -> https://openjdk.java.net/jeps/395  
+    record Point(int x, int y) {};
+    
     @GET
     public String test() {
         try {
@@ -44,17 +49,23 @@ public class TestService {
     }
 
     private void doTest() throws Exception {
-        log("Begining Java 17 testing");
+        log("Begining Java 19 testing");
 
         SwitchPatternMatching(RandomPick());
-
+        int x = rng.nextInt();
+        int y = rng.nextInt();
+        Point p = new Point(x, y);
+        if (printSum(p) != x+y) {
+            throw new Exception("Record pattern test failure, the result should have been " + (x+y) + ", but instead received " + printSum(p));
+        } else {
+            log("Result of printSum: " + String.valueOf(printSum(p)));
+        }
+        
         log("Goodbye testing");
     }
 
     // JEP 356: Enhanced Pseudo-Random Number Generators - https://openjdk.java.net/jeps/356
     public Object RandomPick() {
-        RandomGeneratorFactory<RandomGenerator> rgf = RandomGeneratorFactory.of("L64X128MixRandom");
-        RandomGenerator rng = rgf.create();
         int rnd = rng.nextInt(6);
         if (rnd == 0) {
             return RandomString(rng);
@@ -106,7 +117,7 @@ public class TestService {
         sw.append("<br/>");
     }
 
-    /*
+    /**
      * Extend a class which is introduced in Java 18, to ensure that this class cannot be compiled with anything eariler than Java 18.
      * JEP 418: Internet-Address Resolution SPI https://openjdk.java.net/jeps/418
      */
@@ -118,5 +129,18 @@ public class TestService {
         public String name() {
             return "nothing";
         }
+    }
+    
+    /**
+     * Record patterns (preview) introduced in Java 19 in JEP 405 -> https://openjdk.org/jeps/405
+     * 
+     * @param o
+     */
+    private int printSum(Object o) {
+        if (o instanceof Point(int x, int y)) {
+            return x+y;
+        }
+        
+        return -1;
     }
 }
