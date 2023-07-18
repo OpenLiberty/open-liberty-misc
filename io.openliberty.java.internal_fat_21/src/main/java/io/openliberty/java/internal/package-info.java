@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2023 IBM Corporation and others.
+ * Copyright (c) 2023 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -8,12 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ * IBM Corporation - initial API and implementation
  *******************************************************************************/
-
-rootProject.name = 'open-liberty-misc'
-include 'io.openliberty.java.internal_fat_17'
-include 'io.openliberty.java.internal_fat_18'
-include 'io.openliberty.java.internal_fat_19'
-include 'io.openliberty.java.internal_fat_20'
-include 'io.openliberty.java.internal_fat_21'
+package io.openliberty.java.internal;
