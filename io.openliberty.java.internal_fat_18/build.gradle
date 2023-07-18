@@ -15,7 +15,6 @@
 // Change the installDir setting if your Liberty is located outside of /wlp
 
 apply plugin: 'war'
-apply plugin: 'liberty'
 
 description = "Basic Liberty repo"
 
@@ -27,7 +26,6 @@ compileJava {
     //inputs.property("moduleName", moduleName)
     doFirst {
         options.compilerArgs = [
-            '--add-modules=jdk.incubator.foreign',
             '--module-path', classpath.asPath,
             '--enable-preview'
         ]
@@ -40,7 +38,6 @@ compileJava {
 }
 test {
   useJUnitPlatform()
-  jvmArgs '--add-modules=jdk.incubator.foreign'
 }
 
 java {
@@ -73,24 +70,12 @@ dependencies {
     compileOnly group: 'javax.enterprise', name: 'cdi-api', version: '2.0'
 //    compileOnly group: 'javax.annotation', name: 'javax.annotation-api', version: '1.3.2'
 //    compileOnly group: 'javax.transaction', name: 'javax.transaction-api', version: '1.3'
-    libertyRuntime group: 'io.openliberty', name: 'openliberty-runtime', version: '22.0.0.2'
+//    libertyRuntime group: 'io.openliberty', name: 'openliberty-runtime', version: '22.0.0.2'
 //    serverLibs group: 'org.apache.derby', name: 'derby', version: '10.14.2.0' // '10.15.1.3'
 }
 
 ext {
 	appUrl = 'http://localhost:9080/io.openliberty.java.internal_fat_18/'
-}
-
-liberty {
-	server {
-		name = "$project.name" + 'Server'
-                deploy {
-                    dropins = [war]
-		}
-                stripVersion = true
-	}
-	// Default location of local Liberty install
-    installDir = "/wlp"
 }
 
 task copyServerLibs(type: Copy) {
@@ -101,14 +86,14 @@ task copyServerLibs(type: Copy) {
 
 // Not currently working, must manually handle
 tasks.register('copyEnvFiles', Copy) {
-//    println "Start of copyEnvFiles"
-//    from file('run/jvm.options')
+    println "Start of copyEnvFiles"
+    from file('run/jvm.options')
     // Default location of local Liberty server
-//    into new File("/wlp/usr/servers/${project.name}Server")
-//    from file('run/server.env')
+    into new File("/wlp/usr/servers/${project.name}Server")
+    from file('run/server.env')
     // Default location of local Liberty server
-//    into new File("/wlp/usr/servers/${project.name}Server")
-//    println "End of copyEnvFiles"
+    into new File("/wlp/usr/servers/${project.name}Server")
+    println "End of copyEnvFiles"
 }
 
 task openBrowser {
@@ -117,26 +102,4 @@ task openBrowser {
         java.awt.Desktop.desktop.browse "${appUrl}".toURI()
     }
 }
-
-deploy.dependsOn 'copyServerLibs'
-libertyPackage.dependsOn 'libertyStop', 'copyServerLibs'
-
-clean.dependsOn 'libertyStop'
-libertyPackage.dependsOn 'libertyStop'
-libertyStart.dependsOn 'libertyStop'
-libertyRun.dependsOn 'libertyStop'
-
-libertyStart.doFirst {
-	copyEnvFiles
-}
-
-libertyStart.doLast {
-	println "Application available at: ${appUrl}"
-}
-
-libertyStart.dependsOn 'libertyStop'
-libertyRun.dependsOn 'libertyStop'
-
-task start { dependsOn 'libertyStart' }
-task stop  { dependsOn 'libertyStop' }
 
