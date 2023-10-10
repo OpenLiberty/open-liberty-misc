@@ -49,5 +49,5 @@ jobs:
       uses: actions/upload-artifact@013d2b89baa2f354c5ffec54c68bec4ab39a2534 #v3.1.2
       with:
         name: Applications
-        path: io.openliberty.java.internal_fat_${{ matrix.java-version }}/build/libs/io.openliberty.java.internal_fat_${{ matrix.java-version }}.war
+        path: io.openliberty.java.internal_fat_${{ matrix.java-version }}/build/libs/io.openliberty.java.internal_fat_${{ matrix.java-version }}.jar
         if-no-files-found: error
