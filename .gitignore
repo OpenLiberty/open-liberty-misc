@@ -41,3 +41,7 @@ hs_err_pid*
 # MacOS Garbage
 .DS_Store
 /*/.DS_Store
+
+.classpath
+.project
+*/.settings
