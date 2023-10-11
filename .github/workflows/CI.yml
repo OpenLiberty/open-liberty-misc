@@ -41,10 +41,14 @@ jobs:
     - name: Verify application
       run: |
         ./.github/workflows/scripts/verifyArtifact.sh ${{ matrix.java-version }}
+
+    - name: Repackage application
+      run: |
+        ./.github/workflows/scripts/repackageApplication.sh io.openliberty.java.internal_fat_${{ matrix.java-version }}/build/libs/io.openliberty.java.internal_fat_${{ matrix.java-version }}.war .jar
     
     - name: Upload application
       uses: actions/upload-artifact@013d2b89baa2f354c5ffec54c68bec4ab39a2534 #v3.1.2
       with:
         name: Applications
-        path: io.openliberty.java.internal_fat_${{ matrix.java-version }}/build/libs/io.openliberty.java.internal_fat_${{ matrix.java-version }}.war
+        path: io.openliberty.java.internal_fat_${{ matrix.java-version }}/build/libs/
         if-no-files-found: error
