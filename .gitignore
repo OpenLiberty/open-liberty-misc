@@ -1,8 +1,5 @@
 # Ignore gradle files and folders at the root
 /.gradle/
-/gradle/
-/gradlew
-/gradlew.bat
 
 # Ignore bin folders at the root of each project
 /*/bin/
