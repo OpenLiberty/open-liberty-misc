@@ -65,7 +65,7 @@ jobs:
     
     - name: Upload application
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      uses: actions/upload-artifact@013d2b89baa2f354c5ffec54c68bec4ab39a2534 #v3.1.2
+      uses: actions/upload-artifact@3a8048248f2f288c271830f8ecf2a1c5d8eb0e9a #v3.1.2
       with:
         name: Applications
         path: io.openliberty.java.internal_fat_${{ steps.strip.outputs.java-version }}/build/libs/io.openliberty.java.internal_fat_${{ steps.strip.outputs.java-version }}.jar
