@@ -1,5 +1,7 @@
 # Open Liberty Miscellaneous
 
+![GitHub Actions CI](https://github.com/OpenLiberty/open-liberty-misc/actions/workflows/CI.yml/badge.svg)
+
 Miscellaneous Open Liberty applications and content
 
 # Getting Started
