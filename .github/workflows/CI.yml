@@ -13,6 +13,7 @@ jobs:
   build:
     strategy:
       matrix:
+        # TODO add 22-ea
         java-version: [ '17', '18', '19', '20', '21' ]
 
     runs-on: ubuntu-latest
@@ -21,14 +22,24 @@ jobs:
     - name: Checkout project
       uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
 
-    # Gradle java toolchain cannot find early release images, need to preload until GA is available
-#    - name: Preload JDK 21
-#      if: ${{ matrix.java-version == '21' }}
-#      uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2 # v3.11.0
-#      with:
-#        java-version: '21-ea'
-#        distribution: 'temurin'
+    # Strip -ea off of java-version for build-time use
+    - name: Strip java-version postfix
+      id: strip
+      env:
+        JAVA_VERSION: ${{ matrix.java-version }}
+      run: |
+        echo "java-version=${JAVA_VERSION%-ea}" >> $GITHUB_OUTPUT
 
+    # Gradle 8.X no longer uses a default repository for toolchains.
+    # Ref: https://docs.gradle.org/current/userguide/upgrading_version_7.html#using_automatic_toolchain_downloading_without_having_a_repository_configured
+    # Always preload toolchain JDK
+    - name: Preload JDK ${{ matrix.java-version }}
+      uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2 # v3.11.0
+      with:
+        java-version: ${{ matrix.java-version }}
+        distribution: 'temurin'
+
+    # This is the JDK gradle will use since gradle does not always support the -ea version
     - name: Set up JDK 11
       uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2 # v3.11.0
       with:
@@ -36,22 +47,26 @@ jobs:
         distribution: 'temurin'
         cache: gradle    
 
+    - name: Toolchain debug
+      run: |
+        ./gradlew -q javaToolchains
+
     - name: Build application
       run: |
-        ./gradlew io.openliberty.java.internal_fat_${{ matrix.java-version }}:build
+        ./gradlew io.openliberty.java.internal_fat_${{ steps.strip.outputs.java-version }}:build
 
     - name: Verify application
       run: |
-        ./.github/workflows/scripts/verifyArtifact.sh ${{ matrix.java-version }}
+        ./.github/workflows/scripts/verifyArtifact.sh ${{ steps.strip.outputs.java-version }}
 
     - name: Repackage application
       run: |
-        ./.github/workflows/scripts/repackageApplication.sh io.openliberty.java.internal_fat_${{ matrix.java-version }}/build/libs/io.openliberty.java.internal_fat_${{ matrix.java-version }}.war .jar
+        ./.github/workflows/scripts/repackageApplication.sh io.openliberty.java.internal_fat_${{ steps.strip.outputs.java-version }}/build/libs/io.openliberty.java.internal_fat_${{ steps.strip.outputs.java-version }}.war .jar
     
     - name: Upload application
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: actions/upload-artifact@013d2b89baa2f354c5ffec54c68bec4ab39a2534 #v3.1.2
       with:
         name: Applications
-        path: io.openliberty.java.internal_fat_${{ matrix.java-version }}/build/libs/io.openliberty.java.internal_fat_${{ matrix.java-version }}.jar
+        path: io.openliberty.java.internal_fat_${{ steps.strip.outputs.java-version }}/build/libs/io.openliberty.java.internal_fat_${{ steps.strip.outputs.java-version }}.jar
         if-no-files-found: error
