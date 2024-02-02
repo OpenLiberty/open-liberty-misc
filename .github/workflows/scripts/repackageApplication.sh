@@ -13,7 +13,8 @@ function repackage() {
     file=$(basename $path)    && echo "Extract file: $file"
     name="${file%.*}"         && echo "Extract name: $name"
     
-    cp $path $lib/$name.$ext
+    cp $lib/$file $lib/$name$ext
+    ls -la $lib
 }
 
 repackage
