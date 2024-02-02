@@ -13,7 +13,8 @@ jobs:
   build:
     strategy:
       matrix:
-        java-version: [ '17', '18', '19', '20', '21', '22-ea' ]
+        # TODO add 22-ea
+        java-version: [ '17', '18', '19', '20', '21' ]
 
     runs-on: ubuntu-latest
 
