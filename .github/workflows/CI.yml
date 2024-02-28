@@ -33,14 +33,14 @@ jobs:
     # Ref: https://docs.gradle.org/current/userguide/upgrading_version_7.html#using_automatic_toolchain_downloading_without_having_a_repository_configured
     # Always preload toolchain JDK
     - name: Preload JDK ${{ matrix.java-version }}
-      uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93 # v4.0.0
+      uses: actions/setup-java@9704b39bf258b59bc04b50fa2dd55e9ed76b47a8 # v4.1.0
       with:
         java-version: ${{ matrix.java-version }}
         distribution: 'temurin'
 
     # This is the JDK gradle will use since gradle does not always support the -ea version
     - name: Set up JDK 11
-      uses: actions/setup-java@387ac29b308b003ca37ba93a6cab5eb57c8f5f93 # v4.0.0
+      uses: actions/setup-java@9704b39bf258b59bc04b50fa2dd55e9ed76b47a8 # v4.1.0
       with:
         java-version: '11'
         distribution: 'temurin'
