@@ -33,6 +33,7 @@ public class ClassVersionChecker {
         majorCodeMap.put("19", 63);
         majorCodeMap.put("20", 64);
         majorCodeMap.put("21", 65);
+        majorCodeMap.put("22", 66);
 
         String filename = args[0];
         int expected = majorCodeMap.get(args[1]);
