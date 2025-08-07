@@ -13,7 +13,7 @@ jobs:
   build:
     strategy:
       matrix:
-        java-version: [ '17', '18', '19', '20', '21', '22', '23', '24' ]
+        java-version: [ '17', '18', '19', '20', '21', '22', '23', '24', '25-ea' ]
 
     runs-on: ubuntu-latest
 
@@ -36,14 +36,14 @@ jobs:
       uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
       with:
         java-version: ${{ matrix.java-version }}
-        distribution: 'oracle'
+        distribution: 'temurin'
 
     # This is the JDK gradle will use since gradle does not always support the -ea version
     - name: Set up JDK 17
       uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
       with:
-        java-version: '17'
-        distribution: 'oracle'
+        java-version: '21'
+        distribution: 'temurin'
         cache: gradle    
 
     - name: Toolchain debug
