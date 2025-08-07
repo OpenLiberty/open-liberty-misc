@@ -1,0 +1,5 @@
+# Enable Java preview features
+--enable-preview
+
+# Enable Java incubator modules
+--add-modules=jdk.incubator.foreign

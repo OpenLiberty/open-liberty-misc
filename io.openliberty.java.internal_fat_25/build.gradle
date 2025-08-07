@@ -1,0 +1,57 @@
+/*******************************************************************************
+ * Copyright (c) 2025 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
+// To create this WAR file (ex: ./gradlew build...) for newer versions of Java (typically early access ones) before gradle supports it
+// See the README.md file
+
+apply plugin: 'war'
+
+description = "Basic Liberty repo"
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+compileJava {
+    doFirst {
+        options.compilerArgs = [
+            '--module-path', classpath.asPath,
+            '--enable-preview'
+        ]
+        classpath = files()
+        options.warnings = true
+        options.deprecation = true
+        options.debug = true
+        options.incremental = false
+    }
+}
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(25)
+  }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.1.1'
+    compileOnly group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+    compileOnly group: 'javax.enterprise', name: 'cdi-api', version: '2.0'
+}
+
+// This is the URL the test application will be available at
+ext {
+	appUrl = 'http://localhost:9080/io.openliberty.java.internal_fat_25/'
+}
