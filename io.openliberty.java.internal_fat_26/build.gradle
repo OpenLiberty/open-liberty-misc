@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2025 IBM Corporation and others.
+ * Copyright (c) 2026 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -37,7 +37,7 @@ compileJava {
 
 java {
   toolchain {
-    languageVersion = JavaLanguageVersion.of(25)
+    languageVersion = JavaLanguageVersion.of(26)
   }
 }
 
@@ -53,5 +53,5 @@ dependencies {
 
 // This is the URL the test application will be available at
 ext {
-	appUrl = 'http://localhost:9080/io.openliberty.java.internal_fat_25/'
+	appUrl = 'http://localhost:9080/io.openliberty.java.internal_fat_26/'
 }
