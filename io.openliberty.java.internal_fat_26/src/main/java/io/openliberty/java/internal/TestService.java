@@ -13,17 +13,10 @@
 package io.openliberty.java.internal;
 
 import module java.base;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.cert.X509Certificate;
-import java.util.concurrent.StructuredTaskScope;
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import java.net.http.HttpClient;
 
 @Path("/")
 @ApplicationScoped
