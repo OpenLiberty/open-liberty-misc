@@ -46,3 +46,43 @@ where **JDK26** is a system environment variable that reflects the location of y
 ```
 
 Then add new code to **TestServices.java** either directly or via another class and make sure **TestApp.java** is in the same directory.
+
+---
+
+## Java 26 Specific: JEP 500 Testing
+
+This FAT includes tests for **JEP 500: Prepare to Make Final Mean Final**.
+
+### JVM Options Configuration
+
+The test behavior is controlled by the `run/jvm.options` file:
+
+**Current Configuration (Default Mode):**
+```
+--enable-preview
+# --illegal-final-field-mutation=deny
+```
+
+This tests the **Java 26 default behavior** where deep reflection attempts on final fields:
+- Issue **WARNING** messages to console/logs
+- Do NOT throw exceptions (preparation phase)
+- FAT validation should check for warning messages in `console.log` or `messages.log`
+
+**Strict Mode (Optional):**
+
+To test the future default behavior, uncomment the flag in `run/jvm.options`:
+```
+--enable-preview
+--illegal-final-field-mutation=deny
+```
+
+With this flag enabled:
+- Deep reflection attempts will throw `IllegalAccessException`
+- Mutations are blocked immediately
+- Test code catches the exception and logs it
+
+### FAT Validation
+
+When running the FAT test:
+1. **Default mode**: Check server logs for WARNING messages about illegal reflection
+2. **Strict mode**: Verify test catches `IllegalAccessException` and logs it

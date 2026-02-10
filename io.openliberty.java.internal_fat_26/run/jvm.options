@@ -1,2 +1,8 @@
 # Enable Java preview features
 --enable-preview
+
+# JEP 500: Prepare to Make Final Mean Final
+# In Java 26, the default behavior is to issue warnings (not deny)
+# The FAT test should check for warning messages in console.log/messages.log
+# To test strict enforcement mode, uncomment the line below:
+# --illegal-final-field-mutation=deny
