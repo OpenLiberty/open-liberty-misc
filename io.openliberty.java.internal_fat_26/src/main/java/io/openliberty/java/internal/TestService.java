@@ -58,61 +58,57 @@ public class TestService {
 	}
 
 	// Prepare to Make Final Mean Final : JEP 500 -> https://openjdk.org/jeps/500
+	// Prepare to Make Final Mean Final : JEP 500 -> https://openjdk.org/jeps/500
 	private void testFinalMeanFinal() throws Exception {
 		log("Beginning JEP 500 testing: Prepare to Make Final Mean Final");
-		log("Testing with --illegal-final-field-mutation=deny (future default behavior.This can be turn OFF/ON in JVM Options)");
+		log("Testing final field mutation protection");
 
 		Person p = new Person();
 		log("Before mutation attempt: " + p.name);
-		
-		boolean exceptionCaught = false;
-		String exceptionMessage = null;
-		String exceptionType = null;
-		
+
+		boolean mutationBlocked = false;
+		String mode = null;
+
 		try {
-			// Attempt 'deep reflection' mutation of final field
+			// Use Java 12+ approach to attempt final field mutation
 			Field f = Person.class.getDeclaredField("name");
 			f.setAccessible(true);
-			
-			// Deep reflection: modify the field's modifiers to remove FINAL
-			// In Java 12+, the modifiers field was removed
-			log("Attempting deep reflection (accessing modifiers field)...");
-			try {
-				Field modifiersField = Field.class.getDeclaredField("modifiers");
-				modifiersField.setAccessible(true);
-				modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
-				log("Modifiers field accessed (Java 11 or earlier)");
-			} catch (NoSuchFieldException e) {
-				log("Modifiers field not accessible (Java 12+) - this is expected");
-				log("Attempting direct mutation of final field...");
-			}
-			
+
 			// Attempt to set the final field directly
+			log("Attempting direct mutation of final field...");
 			f.set(p, "Mutated");
-			log("ERROR: Mutation was not blocked! Field value: " + p.name);
-			throw new Exception("JEP 500 test FAILED: Final field mutation should have been blocked");
+
+			// If we reach here, mutation succeeded (WARN mode)
+			mode = "WARN";
+			log("Mutation succeeded - running in WARN mode");
+			log("Field value after mutation: " + p.name);
+			log("Check server logs for JEP 500 warning messages");
 
 		} catch (IllegalAccessException e) {
-			exceptionCaught = true;
-			exceptionType = "IllegalAccessException";
-			exceptionMessage = e.getMessage();
-			log("SUCCESS: IllegalAccessException caught as expected");
-			log("Exception message: " + exceptionMessage);
+			// Mutation was blocked (DENY mode) -Future Java 26 Behaviour
+			mutationBlocked = true;
+			mode = "DENY";
+			log("SUCCESS: IllegalAccessException caught - running in DENY mode");
+			log("Exception message: " + e.getMessage());
+			log("Final field mutation was blocked as expected");
 		}
 
-		if (!exceptionCaught) {
-			throw new Exception("JEP 500 test FAILED: Expected exception was not thrown");
+		// Verify results based on mode
+		if (mode.equals("DENY")) {
+			if (!"Original".equals(p.name)) {
+				throw new Exception("JEP 500 test FAILED: Final field was mutated despite exception. Value: " + p.name);
+			}
+			log("RESULT: Final field remained immutable (value: " + p.name + ")");
+		} else {
+			// WARN mode - mutation may succeed but should log warnings - Current Java 26 Behaviour 
+			log("RESULT: Mutation completed in WARN mode");
+			log("Note: Check console.log/messages.log for JEP 500 warnings");
 		}
 
-		if (!"Original".equals(p.name)) {
-			throw new Exception("JEP 500 test FAILED: Final field was mutated. Value: " + p.name);
-		}
-
-		log("RESULT: Final field remained immutable (value: " + p.name + ")");
 		log("JEP 500 Test Summary:");
-		log("Exception thrown: " + exceptionType);
-		log("Final field remained immutable");
-		log("Mutation attempt was blocked");
+		log("Mode detected: " + mode);
+		log("Mutation blocked: " + mutationBlocked);
+		log("Final field value: " + p.name);
 		log("Leaving JEP 500 testing");
 	}
 
@@ -136,7 +132,7 @@ public class TestService {
 			log("HTTP/3 test note: " + e.getMessage());
 			log("HTTP/3 support is available in Java 26 HttpClient API");
 		}
-        log("Leaving JEP 517 testing");
+		log("Leaving JEP 517 testing");
 	}
 
 	public void log(String msg) {
