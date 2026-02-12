@@ -98,12 +98,6 @@ public class TestService {
 			exceptionMessage = e.getMessage();
 			log("SUCCESS: IllegalAccessException caught as expected");
 			log("Exception message: " + exceptionMessage);
-		} catch (NoSuchFieldException e) {
-			exceptionCaught = true;
-			exceptionType = "NoSuchFieldException";
-			exceptionMessage = e.getMessage();
-			log("SUCCESS: NoSuchFieldException caught (Java 12+ protection)");
-			log("The 'modifiers' field has been removed in Java 12+");
 		}
 
 		if (!exceptionCaught) {
