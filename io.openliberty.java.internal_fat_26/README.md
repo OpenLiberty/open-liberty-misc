@@ -84,5 +84,12 @@ With this flag enabled:
 ### FAT Validation
 
 When running the FAT test:
-1. **Default mode**: Check server logs for WARNING messages about illegal reflection
-2. **Strict mode**: Verify test catches `IllegalAccessException` and logs it
+1. **Default mode**: 
+   - Check server logs for WARNING messages about illegal reflection
+   - Verify the field value was or was not mutated by checking the logged value
+   - Expected: Mutation will succeed with warnings logged
+   
+2. **Strict mode**: 
+   - Verify test catches `IllegalAccessException` and logs it
+   - Verify the field value remains unchanged (should be "Original")
+   - Expected: Mutation blocked, exception thrown

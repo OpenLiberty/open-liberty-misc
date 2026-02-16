@@ -23,8 +23,25 @@ import java.io.PrintWriter;
 @ApplicationScoped
 public class TestService {
 
+	static class FirstName {
+		private final String value;
+		
+		public FirstName(String value) {
+			this.value = value;
+		}
+		
+		public String getValue() {
+			return value;
+		}
+		
+		@Override
+		public String toString() {
+			return value;
+		}
+	}
+
 	static class Person {
-		public final String name = "Original";
+		public final FirstName name = new FirstName("Original");
 	}
 
 	private StringWriter sw = new StringWriter();
@@ -76,7 +93,7 @@ public class TestService {
 
 			// Attempt to set the final field directly
 			log("Attempting direct mutation of final field...");
-			f.set(p, "Mutated");
+			f.set(p, new FirstName("Mutated"));
 
 			// If we reach here, mutation succeeded (WARN mode)
 			mode = "WARN";
@@ -95,14 +112,19 @@ public class TestService {
 
 		// Verify results based on mode
 		if (mode.equals("DENY")) {
-			if (!"Original".equals(p.name)) {
+			if (!"Original".equals(p.name.getValue())) {
 				throw new Exception("JEP 500 test FAILED: Final field was mutated despite exception. Value: " + p.name);
 			}
 			log("RESULT: Final field remained immutable (value: " + p.name + ")");
 		} else {
-			// WARN mode - mutation may succeed but should log warnings - Current Java 26 Behaviour 
-			log("RESULT: Mutation completed in WARN mode");
+			// WARN mode - mutation may succeed but should log warnings - Current Java 26 Behaviour
+			if ("Mutated".equals(p.name.getValue())) {
+				log("RESULT: Mutation succeeded in WARN mode - field value changed to: " + p.name);
+			} else {
+				log("RESULT: Mutation attempted in WARN mode but value unchanged: " + p.name);
+			}
 			log("Note: Check console.log/messages.log for JEP 500 warnings");
+		
 		}
 
 		log("JEP 500 Test Summary:");
