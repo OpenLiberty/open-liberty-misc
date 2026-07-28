@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: [ '17', '18', '19', '20', '21', '22', '23', '24', '25','26' ]
+        java-version: [ '17', '18', '19', '20', '21', '22', '23', '24', '25','26','27-ea' ]
 
     runs-on: ubuntu-latest
 
@@ -30,28 +30,34 @@ jobs:
       run: |
         echo "java-version=${JAVA_VERSION%-ea}" >> $GITHUB_OUTPUT
 
-    # Gradle 8.X no longer uses a default repository for toolchains.
-    # Ref: https://docs.gradle.org/current/userguide/upgrading_version_7.html#using_automatic_toolchain_downloading_without_having_a_repository_configured
-    # Always preload toolchain JDK
+    # Preload the target JDK. setup-java sets JAVA_HOME to the installed JDK;
+    # build.gradle for versions not yet in Gradle's toolchain matrix (e.g. 27)
+    # forks javac directly from JAVA_HOME, so the order of the two setup steps
+    # below matters: preload the target JDK first, then overwrite JAVA_HOME with
+    # JDK 21 so that Gradle itself runs on a supported version.
     - name: Preload JDK ${{ matrix.java-version }}
+      id: preload
       uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
       with:
         java-version: ${{ matrix.java-version }}
-        distribution: 'oracle'
+        distribution: 'temurin'
 
-    # This is the JDK gradle will use since gradle does not always support the -ea version
-    - name: Set up JDK 17
+    # Gradle itself runs on JDK 21; set it up last so JAVA_HOME points here.
+    # build.gradle forks javac from the preloaded JDK path captured above.
+    - name: Set up JDK 21 (Gradle runtime)
       uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
       with:
         java-version: '21'
-        distribution: 'oracle'
-        cache: gradle    
+        distribution: 'temurin'
+        cache: gradle
 
     - name: Toolchain debug
       run: |
         ./gradlew -q javaToolchains
 
     - name: Build application
+      env:
+        JDK27: ${{ steps.preload.outputs.path }}
       run: |
         ./gradlew io.openliberty.java.internal_fat_${{ steps.strip.outputs.java-version }}:build
 

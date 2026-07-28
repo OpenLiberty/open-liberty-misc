@@ -1,0 +1,3 @@
+# No preview features are used in this FAT (all tested JEPs are finalized).
+# Uncomment the line below if preview features are needed in future:
+# --enable-preview
