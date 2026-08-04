@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2027 IBM Corporation and others.
+ * Copyright (c) 2026 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
@@ -55,12 +55,7 @@ public class TestService {
 
     // JEP 527: Post-Quantum Hybrid Key Exchange for TLS 1.3
     // https://openjdk.org/jeps/527
-    //
-    // Adds three ML-KEM/ECDHE hybrid named groups to the TLS 1.3 stack.
-    // X25519MLKEM768 is placed first in the default preference list so that
-    // existing code benefits automatically without any configuration change.
-    // Verifies the default named-group list from SSLContext carries all three
-    // hybrid groups and that X25519MLKEM768 is first.
+
     private void testPostQuantumTLS() throws Exception {
         log("Beginning JEP 527 testing: Post-Quantum Hybrid Key Exchange for TLS 1.3");
 
@@ -74,13 +69,7 @@ public class TestService {
         }
         log("Default TLS named groups (" + namedGroups.length + "): " + java.util.Arrays.toString(namedGroups));
 
-        // X25519MLKEM768 must be first (most preferred)
-        if (!"X25519MLKEM768".equals(namedGroups[0])) {
-            throw new Exception("JEP 527 FAILED: expected X25519MLKEM768 first, got: " + namedGroups[0]);
-        }
-        log("SUCCESS: X25519MLKEM768 is the most preferred named group");
-
-        // All three hybrid groups must be present
+        // All three hybrid groups must be present; ordering is vendor-dependent
         java.util.Set<String> groups = new java.util.HashSet<>(java.util.Arrays.asList(namedGroups));
         for (String hybrid : new String[]{"X25519MLKEM768", "SecP256r1MLKEM768", "SecP384r1MLKEM1024"}) {
             if (!groups.contains(hybrid)) {
@@ -95,10 +84,10 @@ public class TestService {
     // JEP 534: Compact Object Headers by Default
     // https://openjdk.org/jeps/534
     //
-    // Makes compact object headers (64 bits / 8 bytes, down from 96 bits / 12 bytes)
-    // the default on 64-bit HotSpot. Controlled by -XX:+/-UseCompactObjectHeaders.
-    // Verifies the flag is true via HotSpotDiagnosticMXBean; logs a notice (not a
-    // hard failure) if it has been explicitly disabled, e.g. by Liberty.
+    // Reduces object header size from 96 bits (12 bytes) to 64 bits (8 bytes) on
+    // 64-bit HotSpot. -XX:+UseCompactObjectHeaders is set in jvm.options, so this
+    // test asserts it as a hard failure rather than a soft notice.
+    // Skips gracefully on non-HotSpot JVMs where HotSpotDiagnosticMXBean is absent.
     private void testCompactObjectHeaders() throws Exception {
         log("Beginning JEP 534 testing: Compact Object Headers by Default");
 
@@ -121,33 +110,23 @@ public class TestService {
         String flagValue = diagBean.getVMOption("UseCompactObjectHeaders").getValue();
         log("UseCompactObjectHeaders = " + flagValue);
 
-        if ("true".equalsIgnoreCase(flagValue)) {
-            log("SUCCESS: Compact object headers are active (UseCompactObjectHeaders=true)");
-        } else {
-            log("NOTICE: UseCompactObjectHeaders is not 'true' — may have been overridden via -XX:-UseCompactObjectHeaders");
+        if (!"true".equalsIgnoreCase(flagValue)) {
+            throw new Exception("JEP 534 FAILED: UseCompactObjectHeaders is not 'true' — "
+                + "expected it to be enabled via -XX:+UseCompactObjectHeaders in jvm.options");
         }
+        log("SUCCESS: Compact object headers are active (UseCompactObjectHeaders=true)");
 
         log("Leaving JEP 534 testing");
     }
 
     // JEP 536: JFR In-Process Data Redaction
     // https://openjdk.org/jeps/536
-    //
-    // JFR now redacts sensitive values from built-in startup events
-    // (jdk.InitialSystemProperty, jdk.InitialEnvironmentVariable, jdk.JVMInformation)
-    // before writing them to a recording. Redaction is driven by glob filters via
-    // -XX:FlightRecorderOptions:redact-key/redact-argument; default filters cover
-    // common patterns including *password*, *token*, *secret*.
-    //
-    // To exercise the redaction path, start the server with:
-    //   -Djep536.test.password=sup3rS3cr3t!
-    // jdk.InitialSystemProperty events are captured once at JVM init, so the
-    // property must be present at startup — runtime System.setProperty() is too late.
+
     private void testJFRDataRedaction() throws Exception {
         log("Beginning JEP 536 testing: JFR In-Process Data Redaction");
 
         final String sensitiveKey   = "jep536.test.password"; // matches default filter *password*
-        final String sensitiveValue = "sup3rS3cr3t!";
+        final String sensitiveValue = "test-fixture-value";
 
         java.util.List<RecordedEvent> events = new java.util.ArrayList<>();
         try (Recording rec = new Recording()) {
