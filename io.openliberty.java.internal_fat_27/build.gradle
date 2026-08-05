@@ -1,0 +1,52 @@
+/*******************************************************************************
+ * Copyright (c) 2026 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *******************************************************************************/
+apply plugin: 'war'
+
+description = "Basic Liberty repo"
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+// TODO revert to using toolchain once gradle supports JDK 27
+def jdk27Home = System.getenv('JDK27') ?: System.getenv('JAVA_HOME')
+
+compileJava {
+    javaCompiler.set(null as JavaCompiler)
+    options.fork = true
+    options.forkOptions.executable = "${jdk27Home}/bin/javac"
+
+    doFirst {
+        options.compilerArgs = [
+            '--module-path', classpath.asPath,
+            '--release', '27'
+        ]
+        classpath = files()
+        options.warnings = true
+        options.deprecation = true
+        options.debug = true
+        options.incremental = false
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.1.1'
+    compileOnly group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+    compileOnly group: 'javax.enterprise', name: 'cdi-api', version: '2.0'
+}
+
+// This is the URL the test application will be available at
+ext {
+	appUrl = 'http://localhost:9080/io.openliberty.java.internal_fat_27/'
+}

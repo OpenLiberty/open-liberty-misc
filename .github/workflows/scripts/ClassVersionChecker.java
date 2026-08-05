@@ -10,8 +10,10 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-import java.io.*;
-import java.util.*;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashMap;
 
 public class ClassVersionChecker {
 
@@ -50,6 +52,7 @@ public class ClassVersionChecker {
         majorCodeMap.put("24", 68);
         majorCodeMap.put("25", 69);
         majorCodeMap.put("26", 70);
+        majorCodeMap.put("27", 71);
 
         String filename = args[0];
         int expected = majorCodeMap.get(args[1]);
