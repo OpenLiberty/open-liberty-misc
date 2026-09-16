@@ -7,6 +7,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
+// To create this WAR file (ex: ./gradlew build...) for newer versions of Java (typically early access ones) before gradle supports it
+// See the README.md file
+
 apply plugin: 'war'
 
 description = "Basic Liberty repo"
@@ -15,18 +18,10 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-// TODO revert to using toolchain once gradle supports JDK 27
-def jdk27Home = System.getenv('JDK27') ?: System.getenv('JAVA_HOME')
-
 compileJava {
-    javaCompiler.set(null as JavaCompiler)
-    options.fork = true
-    options.forkOptions.executable = "${jdk27Home}/bin/javac"
-
     doFirst {
         options.compilerArgs = [
-            '--module-path', classpath.asPath,
-            '--release', '27'
+            '--module-path', classpath.asPath
         ]
         classpath = files()
         options.warnings = true
@@ -34,6 +29,12 @@ compileJava {
         options.debug = true
         options.incremental = false
     }
+}
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(27)
+  }
 }
 
 repositories {
