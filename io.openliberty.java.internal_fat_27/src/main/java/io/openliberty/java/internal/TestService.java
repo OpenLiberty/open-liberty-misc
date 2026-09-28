@@ -114,7 +114,15 @@ public class TestService {
             return;
         }
 
-        String flagValue = diagBean.getVMOption("UseCompactObjectHeaders").getValue();
+        String flagValue;
+        try {
+            flagValue = diagBean.getVMOption("UseCompactObjectHeaders").getValue();
+        } catch (IllegalArgumentException e) {
+            // On OpenJ9/Semeru the bean is present but getVMOption() throws IAE
+            // because HotSpot-specific VM flags are not supported.
+            log("HotSpotDiagnosticMXBean not available — skipping JEP 534 check (non-HotSpot JVM)");
+            return;
+        }
         log("UseCompactObjectHeaders = " + flagValue);
 
         if (!"true".equalsIgnoreCase(flagValue)) {
@@ -147,6 +155,11 @@ public class TestService {
             } finally {
                 java.nio.file.Files.deleteIfExists(tmp);
             }
+        } catch (IllegalStateException e) {
+            // OpenJ9/Semeru does not support JFR — new Recording() throws ISE.
+            log("NOTE: JFR not supported on this JVM — skipping JEP 536 check (non-HotSpot JVM)");
+            log("Leaving JEP 536 testing");
+            return;
         }
 
         // Find the recorded value for our sensitive key
