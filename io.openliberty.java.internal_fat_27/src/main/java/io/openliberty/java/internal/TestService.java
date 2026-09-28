@@ -94,14 +94,24 @@ public class TestService {
     // Reduces object header size from 96 bits (12 bytes) to 64 bits (8 bytes) on
     // 64-bit HotSpot. -XX:+UseCompactObjectHeaders is set in jvm.options, so this
     // test asserts it as a hard failure rather than a soft notice.
-    // Skips gracefully on non-HotSpot JVMs where HotSpotDiagnosticMXBean is absent.
+    // Skips gracefully on non-HotSpot JVMs (e.g. OpenJ9/Semeru) where
+    // com.sun.management.HotSpotDiagnosticMXBean does not exist on the classpath.
     private void testCompactObjectHeaders() throws Exception {
         log("Beginning JEP 534 testing: Compact Object Headers by Default");
 
-        com.sun.management.HotSpotDiagnosticMXBean diagBean =
-            ManagementFactory.getPlatformMXBean(com.sun.management.HotSpotDiagnosticMXBean.class);
+        com.sun.management.HotSpotDiagnosticMXBean diagBean;
+        try {
+            diagBean = ManagementFactory.getPlatformMXBean(com.sun.management.HotSpotDiagnosticMXBean.class);
+        } catch (NoClassDefFoundError e) {
+            // com.sun.management.HotSpotDiagnosticMXBean is a HotSpot-only class;
+            // on OpenJ9/Semeru getPlatformMXBean throws NoClassDefFoundError rather than returning null.
+            log("HotSpotDiagnosticMXBean not available — skipping JEP 534 check (non-HotSpot JVM)");
+            log("Leaving JEP 534 testing");
+            return;
+        }
         if (diagBean == null) {
             log("HotSpotDiagnosticMXBean not available — skipping JEP 534 check (non-HotSpot JVM)");
+            log("Leaving JEP 534 testing");
             return;
         }
 
@@ -111,6 +121,7 @@ public class TestService {
             new javax.management.ObjectName("com.sun.management:type=HotSpotDiagnostic");
         if (!server.isRegistered(diagName)) {
             log("HotSpotDiagnostic MBean not registered — skipping JEP 534 check");
+            log("Leaving JEP 534 testing");
             return;
         }
 
